@@ -1,0 +1,20 @@
+# Financial data never enters this repo. Exports live outside any checkout.
+data/
+exports/
+*.xlsx
+*.xls
+*.ofx
+*.qfx
+*.pdf
+# CSVs are blocked except curated defaults
+*.csv
+!defaults/*.csv
+!tests/fixtures/*.csv
+# Local config holds account names; only the example is public
+config.toml
+!config.example.toml
+
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
