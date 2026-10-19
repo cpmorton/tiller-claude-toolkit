@@ -1,0 +1,23 @@
+# Copy to your private repo as config.toml. This file only describes the shape.
+# Account names must match the Account column in your Transactions tab exactly.
+
+[accounts]
+# Checking/savings/money-market: where card payments come FROM.
+cash = ["My Bank Checking", "My Bank Savings"]
+
+[card_payments]
+# Case-insensitive regexes matched against Description on cash-account outflows.
+# Anything matching is treated as a transfer, never as spending.
+patterns = [
+  'chase credit crd',
+  'amex epayment',
+  'american express payment',
+  'citi card online',
+  'capital one',
+]
+
+[income]
+categories = ["Paycheck"]
+
+[fees]
+categories = ["Credit Card Fees/Interest", "Bank Fees"]

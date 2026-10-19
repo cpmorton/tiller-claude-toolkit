@@ -1,0 +1,81 @@
+Category,Description Contains,Full Description Contains,Account Contains,Institution Contains,Amount Min,Amount Max,Amount Polarity,Description Regex,Category Hint Regex,Description,Note
+Debt / Revolving Payment,,,,,,,,,LOAN_PAYMENTS_CREDIT_CARD_PAYMENT,,both legs of a card payment are a Transfer
+Debt / Revolving Payment,,,,,,,Positive,^(payment thank you|autopay payment|online payment|mobile payment|payment received),,,
+Credit Card Fees/Interest,"""Interest Charge"",""Finance Charge"",""Late Fee"",""Annual Fee"",""Annual Membership Fee"",""Plan Fee"",""Foreign Transaction Fee""",,,,,,,,,,
+Credit Card Fees/Interest,,,,,,,,,BANK_FEES_(INTEREST_CHARGE|FOREIGN_TRANSACTION_FEES),,
+Bank Fees,,,"""Checking"",""Savings""",,,,,\bnsf\b|courtesy pay|overdraft|insufficient funds|returned item|maintenance fee|service fee|wire (transfer )?fee|stop payment,,,
+Bank Fees,,,,,,,,,BANK_FEES_(ATM_FEES|INSUFFICIENT_FUNDS|OVERDRAFT_FEES|OTHER_BANK_FEES),,
+Interest/Investment Income,,,,,,,Positive,,INCOME_(DIVIDENDS|INTEREST_EARNED),,
+Paycheck,,,"""Checking"",""Savings""",,,,Positive,,INCOME_WAGES,,
+Income Tax,,,,,,,Positive,,INCOME_TAX_REFUND,,refund offsets the tax expense
+Income Tax,,,,,,,Negative,,GOVERNMENT_AND_NON_PROFIT_TAX_PAYMENT,,
+1stMortgage,,,,,,,,,LOAN_PAYMENTS_MORTGAGE_PAYMENT,,
+Car Loan Minimum Payment,,,,,,,,,LOAN_PAYMENTS_CAR_PAYMENT,,
+Student Loan Minimum Payment,,,,,,,,,LOAN_PAYMENTS_STUDENT_LOAN_PAYMENT,,
+Debt Minimum Payment,,,"""Checking"",""Savings""",,,,Negative,,LOAN_PAYMENTS_PERSONAL_LOAN_PAYMENT,,
+Loan Disbursement/Advance,,,"""Checking"",""Savings""",,,,Positive,,TRANSFER_IN_CASH_ADVANCES_AND_LOANS,,FLAG:identify
+Transfer,,,"""Checking"",""Savings""",,,,,,TRANSFER_(IN|OUT)_(ACCOUNT_TRANSFER|SAVINGS|INVESTMENT_AND_RETIREMENT_FUNDS),,
+Cash Withdrawal,,,,,,,,^atm\b,,,FLAG:identify
+Cash Withdrawal,,,,,,,,,TRANSFER_OUT_WITHDRAWAL,,FLAG:identify
+Categorize Later,,,,,,,,^check\s*#?\s*\d+,,,TODO:identify check payee
+Fuel/Gas,"""Costco Gas"",""Costco Fuel"",""Sams Fuel"",""Sam's Fuel"",""BJs Fuel"",""Harris Teeter Fuel"",""Kroger Fuel""",,,,,,,,,,
+Takeout/Delivery,"""Uber Eats"",""DoorDash"",""Grubhub"",""Instacart*subscr""",,,,,,,,,,
+Taxi/Rideshare,"""Uber *Trip"",""Uber Trip"",""Lyft""",,,,,,,,,,
+Utilities:Internet/Subscriptions,"""Netflix"",""Hulu"",""Hlu*"",""Disney Plus"",""Disneyplus"",""HBO Max"",""Max.com"",""Peacock"",""Paramount+"",""Spotify"",""Apple.com/bill"",""YouTube"",""Audible"",""Prime Video"",""Amazon Prime"",""Sirius"",""Patreon"",""Substack"",""Adobe"",""Dropbox"",""Duolingo"",""OpenAI"",""ChatGPT"",""Claude.ai"",""Anthropic"",""LinkedIn"",""Google Fiber"",""Gfiber"",""Xfinity"",""Comcast"",""Spectrum""",,,,,,,,,,REVIEW:subscription
+Utilities:Phone Services,"""T-Mobile"",""Tmobile"",""Verizon"",""AT&T"",""Mint Mobile"",""Visible"",""Cricket Wireless"",""Google Fi""",,,,,,,,,,
+Fuel/Gas,"""Shell Oil"",""Shell Service"",""Exxon"",""Mobil"",""Chevron"",""BP#"",""Sheetz"",""Speedway"",""Circle K"",""Sunoco"",""Marathon Petro"",""Valero"",""QuikTrip""",,,,,,,,,,
+Groceries - Food/Household,"""Publix"",""Kroger"",""Harris Teeter"",""Trader Joe"",""Aldi"",""Wegman"",""Whole Foods"",""Wholefds"",""Food Lion"",""Safeway"",""Albertsons"",""Sprouts"",""Giant Food"",""Stop & Shop"",""H Mart"",""Lidl"",""H-E-B""",,,,,,,,,,
+Takeout/Delivery,"""Chick-fil"",""Starbucks"",""McDonald's"",""Burger King"",""Wendy's"",""Wendys"",""Taco Bell"",""Chipotle"",""Subway"",""Dunkin"",""Panera"",""Cava"",""Jersey Mike"",""Domino's"",""Pizza Hut"",""Papa John"",""Five Guys"",""Shake Shack"",""In-n-out"",""Panda Express""",,,,,,,,,,
+Movie/Concert/Event Tickets,"""Ticketmaster"",""TM *"",""StubHub"",""SeatGeek"",""Fandango"",""AMC "",""Regal"",""Eventbrite"",""Etix""",,,,,,,,,,
+Pet Food / Litter / Treats / Toys,"""Chewy"",""Petsmart"",""Petco""",,,,,,,,,,
+Pharmacy/HABA,"""CVS"",""Walgreens"",""Rite Aid""",,,,,,,,,,
+Home Maintenance / Repair,"""Home Depot"",""Lowe's #"",""Lowes #"",""Ace Hardware"",""Acehardw"",""Menards""",,,,,,,,,,
+Furniture/Renovation/Upgrades,"""Ikea"",""Wayfair"",""World Market""",,,,,,,,,,
+Household Misc,"""Extra Space"",""Public Storage"",""CubeSmart"",""Life Storage"",""U-Haul Storage""",,,,,,,,,,REVIEW:storage rent creeps every year
+Clothing/Shoes/Accessories,"""Old Navy"",""Gap "",""DSW"",""Lululemon"",""Nike"",""Zappos"",""American Eagle"",""Urban Outfitters"",""Crocs""",,,,,,,,,,
+Technology/Computer/Electronics,"""Best Buy"",""Apple Store"",""B&H Photo"",""Newegg"",""Micro Center""",,,,,,,,,,
+Outdoor Activities/Sports/Hiking,"""REI #"",""Dick's Sporting"",""Academy Sports""",,,,,,,,,,
+Tolls/Parking,"""Parkmobile"",""E-ZPass"",""EZPass"",""SunPass"",""SpotHero""",,,,,,,,,,
+Gambling,"""Lottery"",""Lotto"",""DraftKings"",""FanDuel"",""Casino""",,,,,,,,,,
+Political Gifts / PACs,"""ActBlue"",""WinRed""",,,,,,,,,,
+Charity Donations,"""Wikimedia"",""Internet Archive"",""Food Bank"",""Red Cross""",,,,,,,,,,
+Categorize Later,"""Amazon"",""Amzn""",,,,,,,,,Amazon,AMZ:pending
+Categorize Later,"""Target"",""Costco"",""Walmart"",""Wal-Mart"",""WM Supercenter"",""Sams Club"",""Sam's Club"",""BJs Wholesale"",""BJ's Wholesale"",""Instacart""",,,,,,,,,,FLAG:identify
+Categorize Later,"""Venmo"",""Cash App"",""Zelle"",""Paypal *"",""eBay"",""Etsy"",""TikTok Shop""",,,,,,,,,,FLAG:identify
+Categorize Later,,,,,,,,^(sq|sp) ?\*,,,FLAG:identify (Square/Shopify merchant)
+Groceries - Food/Household,,,,,,,,,FOOD_AND_DRINK_GROCERIES,,
+Restaurants,,,,,,,,,FOOD_AND_DRINK_RESTAURANT,,
+Takeout/Delivery,,,,,,,,,FOOD_AND_DRINK_(FAST_FOOD|COFFEE|VENDING_MACHINES),,
+Bars/Breweries,,,,,,,,,FOOD_AND_DRINK_BEER_WINE_AND_LIQUOR,,
+Fuel/Gas,,,,,,,,,TRANSPORTATION_GAS,,
+Tolls/Parking,,,,,,,,,TRANSPORTATION_(PARKING|TOLLS),,
+Taxi/Rideshare,,,,,,,,,TRANSPORTATION_TAXIS_AND_RIDE_SHARES,,
+Public/Mass Transit,,,,,,,,,TRANSPORTATION_PUBLIC_TRANSIT,,
+Car Maintenance / Repair / DMV,,,,,,,,,GENERAL_SERVICES_AUTOMOTIVE,,
+Utilities:Electricity/Gas,,,,,,,,,RENT_AND_UTILITIES_GAS_AND_ELECTRICITY,,
+Utilities:Water/Sewer/Garbage,,,,,,,,,RENT_AND_UTILITIES_(WATER|SEWAGE_AND_WASTE_MANAGEMENT),,
+Utilities:Internet/Subscriptions,,,,,,,,,RENT_AND_UTILITIES_INTERNET_AND_CABLE,,
+Utilities:Phone Services,,,,,,,,,RENT_AND_UTILITIES_TELEPHONE,,
+Copay/Deductible - Office Visit,,,,,,,,,MEDICAL_(PRIMARY_CARE|DENTAL_CARE|OTHER_MEDICAL),,
+Contacts/Glasses,,,,,,,,,MEDICAL_EYE_CARE,,
+Pharmacy/HABA,,,,,,,,,MEDICAL_PHARMACIES_AND_SUPPLEMENTS,,
+Veterinary,,,,,,,,,MEDICAL_VETERINARY_SERVICES,,
+Pet Food / Litter / Treats / Toys,,,,,,,,,GENERAL_MERCHANDISE_PET_SUPPLIES,,
+Gym/Fitness,,,,,,,,,PERSONAL_CARE_GYMS_AND_FITNESS_CENTERS,,
+Haircare,,,,,,,,,PERSONAL_CARE_HAIR_AND_BEAUTY,,
+Clothing/Shoes/Accessories,,,,,,,,,GENERAL_MERCHANDISE_CLOTHING_AND_ACCESSORIES,,
+Technology/Computer/Electronics,,,,,,,,,GENERAL_MERCHANDISE_ELECTRONICS,,
+Outdoor Activities/Sports/Hiking,,,,,,,,,GENERAL_MERCHANDISE_SPORTING_GOODS,,
+Hobbies/Collecting/Games/Puzzles,,,,,,,,,GENERAL_MERCHANDISE_BOOKSTORES_AND_NEWSSTANDS|ENTERTAINMENT_VIDEO_GAMES,,
+Home Maintenance / Repair,,,,,,,,,HOME_IMPROVEMENT_(HARDWARE|REPAIR_AND_MAINTENANCE|SECURITY|OTHER_HOME_IMPROVEMENT),,
+Furniture/Renovation/Upgrades,,,,,,,,,HOME_IMPROVEMENT_FURNITURE,,
+Utilities:Internet/Subscriptions,,,,,,,,,ENTERTAINMENT_(TV_AND_MOVIES|MUSIC_AND_AUDIO),,
+Movie/Concert/Event Tickets,,,,,,,,,ENTERTAINMENT_SPORTING_EVENTS_AMUSEMENT_PARKS_AND_MUSEUMS,,
+Gambling,,,,,,,,,ENTERTAINMENT_CASINOS_AND_GAMBLING,,
+Charity Donations,,,,,,,,,GOVERNMENT_AND_NON_PROFIT_DONATIONS,,
+Tuition/Courses/Materials,,,,,,,,,GENERAL_SERVICES_EDUCATION,,
+Kids Activities/Lessons,,,,,,,,,GENERAL_SERVICES_CHILDCARE,,
+Household Misc,,,,,,,,,GENERAL_SERVICES_(POSTAGE_AND_SHIPPING|STORAGE)|GENERAL_MERCHANDISE_OFFICE_SUPPLIES,,
+Gifts - Birthday/XMAS/etc,,,,,,,,,GENERAL_MERCHANDISE_GIFTS_AND_NOVELTIES,,
+Travel Misc,,,,,,,,,TRAVEL_,,FLAG:vacation?
+Categorize Later,,,,,,,,,GENERAL_MERCHANDISE_(SUPERSTORES|ONLINE_MARKETPLACES|DEPARTMENT_STORES|DISCOUNT_STORES),,FLAG:identify

@@ -1,0 +1,22 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas pytest
+      - name: No financial data in the tree
+        run: scripts/check_no_financial_data.sh --all
+      - name: Default rules lint clean
+        run: python -I scripts/lint_autocat.py defaults/autocat.csv --categories defaults/categories.csv
+      - run: pytest -q
+      - run: bash -n scripts/*.sh

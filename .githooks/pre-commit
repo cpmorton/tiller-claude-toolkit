@@ -1,0 +1,3 @@
+#!/bin/bash
+# Enable with: git config core.hooksPath .githooks
+exec "$(git rev-parse --show-toplevel)/scripts/check_no_financial_data.sh" --staged
