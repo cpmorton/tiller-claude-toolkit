@@ -1,0 +1,13 @@
+Date,Description,Category,Amount,Account,Full Description,Category Hint
+01/05/2026,Acme Payroll,Paycheck,"$5,000.00",Sample Checking,ACME PAYROLL,INCOME: INCOME_WAGES
+01/06/2026,Chase Credit Crd,Debt Minimum Payment,-$1200.00,Sample Checking,CHASE CREDIT CRD,LOAN_PAYMENTS: LOAN_PAYMENTS_CREDIT_CARD_PAYMENT
+01/06/2026,Payment Thank You - Web,Debt / Revolving Payment,$1200.00,Sample Visa,PAYMENT THANK YOU,
+01/07/2026,Publix #123,Groceries - Food/Household,-$80.00,Sample Visa,PUBLIX,FOOD_AND_DRINK: FOOD_AND_DRINK_GROCERIES
+02/07/2026,Publix #123,Groceries - Food/Household,-$90.00,Sample Visa,PUBLIX,FOOD_AND_DRINK: FOOD_AND_DRINK_GROCERIES
+01/09/2026,Streamco Monthly,Utilities:Internet/Subscriptions,-$15.99,Sample Visa,STREAMCO,
+02/09/2026,Streamco Monthly,Utilities:Internet/Subscriptions,-$15.99,Sample Visa,STREAMCO,
+03/09/2026,Streamco Monthly,Utilities:Internet/Subscriptions,-$15.99,Sample Visa,STREAMCO,
+01/10/2026,Costco Gas #9,,-$45.00,Sample Visa,COSTCO GAS,TRANSPORTATION: TRANSPORTATION_GAS
+01/11/2026,Costco Whse #9,,-$210.00,Sample Visa,COSTCO WHSE,GENERAL_MERCHANDISE: GENERAL_MERCHANDISE_SUPERSTORES
+01/12/2026,Venmo,,$40.00,Sample Venmo,VENMO,INCOME: INCOME_WAGES
+01/15/2026,Interest Charge,Credit Card Fees/Interest,-$25.00,Sample Visa,INTEREST CHARGE,BANK_FEES: BANK_FEES_INTEREST_CHARGE
