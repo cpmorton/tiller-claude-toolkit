@@ -46,3 +46,33 @@ your mortgage. Every dollar in it is phantom spending in Tiller's reports.
   `INCOME_WAGES`. The default Paycheck rule only fires on checking/savings for that reason.
 - **Loan or line-of-credit draws** into checking are `Loan Disbursement/Advance` (a
   Transfer), not income. A month that "balances" because of a draw didn't balance.
+
+## Finding the other leg
+
+`scripts/pair_legs.py` does the matching from the [quarterly sweep](quarterly-sweep.md) step 7
+for you. It reads the JSON that the Tiller connector's `query_transactions` returns (or a CSV of
+the Transactions tab) and pairs an outflow with an inflow of the same amount in a different
+account within 3 days, where at least one leg is uncategorized. For each blank leg it proposes:
+
+1. the other leg's category, when that leg is already categorized and the account types
+   below don't contradict it (a contradiction goes to a person);
+2. `Debt / Revolving Payment` when one account is in `[accounts] cards`;
+3. `Transfer` when both accounts are in `[accounts] cash`;
+4. nothing, so a person decides (loans, P2P wallets, anything not in the config).
+
+Pass `--categories` (a CSV of the Categories tab) so that only rows with a Transfer-type
+category can be a partner. Without it, a purchase or refund that happens to share an amount
+with a payment can pair. In a test on real data, family Venmo repayments paired with Amazon
+orders that way. Ties are reported as ambiguous instead of guessed, and categorized rows are
+never proposed for change. The proposal CSV goes to a scratch directory (`/root/budget-data`), and `--updates`
+writes `update_transactions` payloads. The Note value **appends** `PAIR:<other Transaction ID>`
+to the existing note. Nothing is written to the sheet until someone reviews the proposal,
+backs up, and says yes. Then the payloads go through the Tiller connector, 100 per call.
+
+```bash
+python3 -I scripts/pair_legs.py /root/budget-data/tx.json --config ../my-ops/config.toml \
+    --out /root/budget-data/pairs.csv --updates /root/budget-data/pair-updates.json
+```
+
+Legs it can't pair (one side on an account Tiller doesn't sync, for example) still need the
+`FLAG:identify` treatment by hand.

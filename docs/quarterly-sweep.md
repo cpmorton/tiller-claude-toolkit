@@ -13,6 +13,7 @@ Do one quarter per session. A sweep is what keeps reports trustworthy enough to 
    candidates). The human picks the one-offs.
 7. **Match card payments**: every checking-side payment should have a card-side twin with
    the same amount within ±3 days. Unmatched legs get `FLAG:identify`.
+   [`scripts/pair_legs.py`](../scripts/pair_legs.py) proposes the matches and categories.
 8. **Stamp** finalized rows with `SWEEP:<yyyy>-Q<n>` in Note (append).
 9. **Commit** the rule changes to your private repo, so the sheet's AutoCat tab is a
    deploy target and not the source of truth.
