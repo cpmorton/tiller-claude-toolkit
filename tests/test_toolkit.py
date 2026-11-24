@@ -110,3 +110,37 @@ def test_cli_lint_exit_codes(tmp_path):
     p = subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'scripts', 'lint_autocat.py'), str(bad)],
                        capture_output=True, text=True)
     assert p.returncode == 1 and 'has no criteria' in p.stdout
+
+
+def _retention(items, today, keep_days=30):
+    """Run the Apps Script's pure retention rule under node; returns the dates it would trash."""
+    import json, shutil
+    if not shutil.which('node'):
+        import pytest
+        pytest.skip('node not installed')
+    src = os.path.join(ROOT, 'apps-script', 'nightly-backup.gs')
+    js = ("const fs=require('fs');const code=fs.readFileSync(process.argv[1],'utf8');"
+          "const f=new Function(code+';return selectForTrash;')();"
+          "const a=JSON.parse(process.argv[2]);"
+          "console.log(JSON.stringify(f(a.items,a.today,a.keep).map(i=>i.date)));")
+    arg = json.dumps({'items': [{'date': d} for d in items], 'today': today, 'keep': keep_days})
+    p = subprocess.run(['node', '-e', js, src, arg], capture_output=True, text=True)
+    assert p.returncode == 0, p.stderr
+    return json.loads(p.stdout)
+
+
+def test_backup_retention_keeps_window_and_first_of_month():
+    import datetime as dt
+    start = dt.date(2026, 8, 20)
+    days = [(start + dt.timedelta(n)).isoformat() for n in range(118)]  # through 2026-12-15
+    gone = set(_retention(days, '2026-12-15'))
+    kept = set(days) - gone
+    assert {'2026-08-20', '2026-09-01', '2026-10-01', '2026-11-01', '2026-12-01'} <= kept
+    assert all(d >= '2026-11-15' for d in kept if d[8:] != '01' and d != '2026-08-20')
+    assert '2026-11-14' in gone and '2026-11-15' in kept and '2026-12-15' in kept
+
+
+def test_backup_retention_with_gaps_keeps_earliest_copy_of_month():
+    # no copy on the 1st (trigger missed a day): the earliest one that month survives
+    assert _retention(['2026-09-03', '2026-09-04', '2026-09-20'], '2026-12-15') == ['2026-09-04', '2026-09-20']
+    assert _retention(['2026-12-01', '2026-12-14'], '2026-12-15') == []

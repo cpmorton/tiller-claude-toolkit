@@ -22,6 +22,7 @@ Someone who just connected their bank accounts to a Tiller sheet and wants:
 
 | Path | What |
 |---|---|
+| [`apps-script/nightly-backup.gs`](apps-script/nightly-backup.gs) | Optional nightly copy of the sheet with retention, installed in your own Google account. See [backups](docs/backups.md) |
 | [`docs/`](docs/) | How-tos, from first setup to quarterly sweeps. Start with [getting-started](docs/getting-started.md); [backups](docs/backups.md) before your first write |
 | [`defaults/categories.csv`](defaults/categories.csv) | Opinionated category list (Category, Group, Type) |
 | [`defaults/autocat.csv`](defaults/autocat.csv) | Generic AutoCat rules in four tiers: structural, merchants, superstores, Plaid-hint fallbacks |
