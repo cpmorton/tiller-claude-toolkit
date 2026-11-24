@@ -71,7 +71,7 @@ backs up, and says yes. Then the payloads go through the Tiller connector, 100 p
 
 ```bash
 python3 -I scripts/pair_legs.py /root/budget-data/tx.json --config ../my-ops/config.toml \
-    --out /root/budget-data/pairs.csv --updates /root/budget-data/pair-updates.json
+    --categories ../my-ops/rules/categories.csv --out /root/budget-data/pairs.csv --updates /root/budget-data/pair-updates.json
 ```
 
 Legs it can't pair (one side on an account Tiller doesn't sync, for example) still need the
