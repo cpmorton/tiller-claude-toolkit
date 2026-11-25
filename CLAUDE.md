@@ -8,11 +8,15 @@ differ.
 
 - Commit financial data: transaction exports, statements, balances, account numbers.
   Exports go to a scratch directory outside every git checkout (e.g. `/root/budget-data`).
-- Insert rows in the **Categories** tab. Append new categories at the bottom. The Category
-  dropdown on Transactions is a data-validation rule that points at that range.
+- Insert rows in the **Categories** tab, top or bottom of the list. Add categories with the
+  connector's `add_category`, or in blank cells under the last one. The Category dropdown on
+  Transactions is a data-validation rule that reads a fixed range of that tab.
 - Paste into **Transactions** or **AutoCat** except as *Paste special > Values only*.
   A normal paste overwrites the validation on those cells.
-- Move, rename or reformat the Category column header on either tab.
+- Move, rename, reformat or delete the Category column header on either tab.
+- Insert, delete or move columns on **Transactions** or **Categories**. The dropdown rule
+  then points at the wrong column. If it breaks, see
+  [docs/categories-and-transfers.md](docs/categories-and-transfers.md#if-the-category-dropdown-breaks).
 - Run AutoCat "Run Rules on All" without saying so first. It overwrites existing
   categories wherever a rule matches.
 
