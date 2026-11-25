@@ -110,3 +110,74 @@ def test_cli_lint_exit_codes(tmp_path):
     p = subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'scripts', 'lint_autocat.py'), str(bad)],
                        capture_output=True, text=True)
     assert p.returncode == 1 and 'has no criteria' in p.stdout
+
+
+import pair_legs  # noqa: E402
+
+
+def _tx(id_, d, amt, acct, cat='', note=''):
+    return {'transactionId': id_, 'date': d, 'description': id_, 'amount': amt,
+            'account': acct, 'category': cat, 'note': note}
+
+
+def _run_pairs(tmp_path, txs, cfg_text='', extra=()):
+    src, out, upd, cfg = (tmp_path / n for n in ('tx.json', 'pairs.csv', 'upd.json', 'c.toml'))
+    src.write_text(__import__('json').dumps({'transactions': txs}))
+    cfg.write_text(cfg_text)
+    p = subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'scripts', 'pair_legs.py'), str(src),
+                        '--config', str(cfg), '--out', str(out), '--updates', str(upd), *extra],
+                       capture_output=True, text=True)
+    assert p.returncode == 0, p.stderr
+    with open(out, newline='') as f:
+        rows = {r['transaction_id']: r for r in csv.DictReader(f)}
+    return rows, __import__('json').loads(upd.read_text())
+
+
+CFG = '[accounts]\ncash = ["Chk", "Sav"]\ncards = ["Visa"]\n'
+
+
+def test_pair_uses_categorized_leg_then_config(tmp_path):
+    txs = [_tx('a1', '2026-01-05', -500.0, 'Chk'),            # card payment, both blank
+           _tx('a2', '2026-01-07', 500.0, 'Visa'),
+           _tx('b1', '2026-02-01', -75.25, 'Chk'),           # other leg already tagged
+           _tx('b2', '2026-02-02', 75.25, 'Sav', 'Transfer', 'kept'),
+           _tx('c1', '2026-03-01', -40.0, 'Chk'),            # 5 days apart: no pair
+           _tx('c2', '2026-03-06', 40.0, 'Sav')]
+    rows, upd = _run_pairs(tmp_path, txs, CFG)
+    assert rows['a1']['proposed_category'] == rows['a2']['proposed_category'] == 'Debt / Revolving Payment'
+    assert rows['b1']['proposed_category'] == 'Transfer' and 'b2' not in rows  # never touch tagged rows
+    assert 'c1' not in rows and 'c2' not in rows
+    assert {u['transactionId'] for u in upd} == {'a1', 'a2', 'b1'}
+    assert next(u for u in upd if u['transactionId'] == 'b1')['values']['Note'] == 'PAIR:b2'
+
+
+def test_pair_ties_are_ambiguous_and_notes_append(tmp_path):
+    txs = [_tx('d1', '2026-04-01', -20.0, 'Chk', note='FLAG:identify'),
+           _tx('d2', '2026-04-02', 20.0, 'Sav'),
+           _tx('d3', '2026-04-02', 20.0, 'Visa')]
+    rows, upd = _run_pairs(tmp_path, txs, CFG)
+    assert rows['d1']['status'].startswith('ambiguous') and upd == []
+    assert pair_legs.append_token('FLAG:identify', 'PAIR:x') == 'FLAG:identify PAIR:x'
+    assert pair_legs.append_token('PAIR:x', 'PAIR:x') == 'PAIR:x'
+
+
+def test_pair_unknown_accounts_need_a_person(tmp_path):
+    rows, upd = _run_pairs(tmp_path, [_tx('e1', '2026-05-01', -9.0, 'Chk'),
+                                      _tx('e2', '2026-05-01', 9.0, 'Some Wallet')], CFG)
+    assert rows['e1']['status'] == 'needs_category' and upd == []
+
+
+def test_pair_ignores_purchases_when_categories_given(tmp_path):
+    cats = tmp_path / 'cats.csv'
+    cats.write_text('Category,Group,Type,Hide From Reports\nTransfer,Transfer,Transfer,\n'
+                    'Groceries,Food,Expense,\n')
+    txs = [_tx('a1', '2025-01-02', -40, 'Chk'), _tx('b1', '2025-01-03', 40, 'Sav', 'Groceries'),
+           _tx('a2', '2025-02-02', -55, 'Chk'), _tx('b2', '2025-02-03', 55, 'Sav', 'Transfer')]
+    rows, _ = _run_pairs(tmp_path, txs, CFG, ['--categories', str(cats)])
+    assert list(rows) == ['a2'] and rows['a2']['proposed_category'] == 'Transfer'
+
+
+def test_pair_conflict_between_leg_and_accounts_goes_to_a_person(tmp_path):
+    txs = [_tx('a1', '2025-01-02', -6, 'Chk'), _tx('b1', '2025-01-03', 6, 'Sav', 'Debt / Revolving Payment')]
+    rows, upd = _run_pairs(tmp_path, txs, CFG)
+    assert rows['a1']['status'] == 'needs_category' and upd == []

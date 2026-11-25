@@ -4,6 +4,8 @@
 [accounts]
 # Checking/savings/money-market: where card payments come FROM.
 cash = ["My Bank Checking", "My Bank Savings"]
+# Credit cards (pair_legs.py proposes Debt / Revolving Payment when one leg is a card).
+cards = ["My Visa", "My Amex"]
 
 [card_payments]
 # Case-insensitive regexes matched against Description on cash-account outflows.
@@ -21,3 +23,9 @@ categories = ["Paycheck"]
 
 [fees]
 categories = ["Credit Card Fees/Interest", "Bank Fees"]
+
+[pairing]
+# pair_legs.py: max days between the two legs, and the categories it proposes.
+days = 3
+transfer_category = "Transfer"
+card_payment_category = "Debt / Revolving Payment"
