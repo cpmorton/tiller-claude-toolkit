@@ -191,7 +191,7 @@ def _retention(items, today, keep_days=30):
         pytest.skip('node not installed')
     src = os.path.join(ROOT, 'apps-script', 'nightly-backup.gs')
     js = ("const fs=require('fs');const code=fs.readFileSync(process.argv[1],'utf8');"
-          "const f=new Function(code+';return selectForTrash;')();"
+          "const f=new Function(code+';return selectForTrash_;')();"
           "const a=JSON.parse(process.argv[2]);"
           "console.log(JSON.stringify(f(a.items,a.today,a.keep).map(i=>i.date)));")
     arg = json.dumps({'items': [{'date': d} for d in items], 'today': today, 'keep': keep_days})
