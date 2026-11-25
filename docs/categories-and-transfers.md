@@ -46,3 +46,23 @@ your mortgage. Every dollar in it is phantom spending in Tiller's reports.
   `INCOME_WAGES`. The default Paycheck rule only fires on checking/savings for that reason.
 - **Loan or line-of-credit draws** into checking are `Loan Disbursement/Advance` (a
   Transfer), not income. A month that "balances" because of a draw didn't balance.
+
+## If the Category dropdown breaks
+
+Per Tiller's [Troubleshooting the Category dropdown](https://help.tiller.com/en/articles/1550360)
+(Google Sheets, checked 2026-11-25), the dropdown is a data-validation rule on the
+Transactions Category column that reads its list from the Categories tab. It breaks when
+someone inserts rows in Categories, pastes into Transactions without *Values only*, deletes
+or reformats either Category column, or moves columns on either tab.
+
+The fix is a direct sheet edit, so back up first and get a yes:
+
+1. Find the Category column on both tabs (Foundation template: Transactions D, Categories A).
+2. Select the Transactions Category column, then **Data > Data validation** and open the rule.
+3. *Apply to range*: `Transactions!D2:D` (from row 2, so new rows inherit it).
+4. *Criteria*: **Dropdown (from a range)**, `=Categories!$A$2:$A$201`. Adjust the letters if
+   the columns moved, and the last row if Categories is longer.
+5. Advanced: **Reject input**, arrow style (Tiller's recommendation).
+
+Categories past the rule's last row don't show in the dropdown, so check that row before
+adding many categories.
