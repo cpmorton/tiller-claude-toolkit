@@ -14,6 +14,10 @@
  * tag in their Drive description, (c) are named like a nightly copy, and (d) are not the live
  * sheet. Hand-made "pre-<step>" copies and anything else in the folder are never touched.
  *
+ * Paste this whole file into Code.gs. The editor's Run menu then lists the four functions you
+ * use: nightlyBackup, dryRunPrune, installTrigger and removeTrigger. Names ending in "_" are
+ * helpers that Apps Script hides from that menu.
+ *
  * Settings live in Script Properties (Project Settings > Script properties), not in code:
  *   SOURCE_SHEET_ID   required  the live Tiller sheet's ID (from its URL)
  *   BACKUP_FOLDER_ID  optional  the backup folder's ID; if unset, a single folder named
@@ -31,13 +35,27 @@ var DEFAULT_FOLDER_NAME = 'Tiller Backups';
 
 /** Entry point for the daily trigger. */
 function nightlyBackup() {
+  // A manual Run and the trigger can overlap; only one may copy at a time.
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(30 * 1000)) {
+    console.log('Another run is in progress; skipping this one.');
+    return;
+  }
+  try {
+    backupAndPrune_();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function backupAndPrune_() {
   var cfg = readConfig_();
   var source = DriveApp.getFileById(cfg.sourceId);
   var folder = backupFolder_(cfg);
   var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
   var name = 'BACKUP ' + today + ' nightly - ' + source.getName();
 
-  if (folder.getFilesByName(name).hasNext()) {
+  if (hasLiveFile_(folder.getFilesByName(name))) {
     console.log('Already backed up today: ' + name);
   } else {
     var copy = source.makeCopy(name, folder);
@@ -65,6 +83,14 @@ function removeTrigger() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'nightlyBackup') ScriptApp.deleteTrigger(t);
   });
+}
+
+/** True if the iterator holds a file that isn't in the Trash. */
+function hasLiveFile_(files) {
+  while (files.hasNext()) {
+    if (!files.next().isTrashed()) return true;
+  }
+  return false;
 }
 
 function readConfig_() {
@@ -96,7 +122,7 @@ function prune_(cfg, folder, dryRun) {
   var files = folder.getFiles();
   while (files.hasNext()) {
     var f = files.next();
-    if (f.getId() === cfg.sourceId) continue;
+    if (f.getId() === cfg.sourceId || f.isTrashed()) continue;
     if ((f.getDescription() || '').indexOf(TAG) !== 0) continue;
     var owner = f.getOwner();
     if (!owner || owner.getEmail() !== me) continue;
@@ -105,7 +131,7 @@ function prune_(cfg, folder, dryRun) {
     candidates.push({ id: f.getId(), name: f.getName(), date: m[1], file: f });
   }
   var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
-  var doomed = selectForTrash(candidates, today, cfg.keepDays);
+  var doomed = selectForTrash_(candidates, today, cfg.keepDays);
   if (doomed.length > cfg.maxTrash) {
     throw new Error('Pruning wants to trash ' + doomed.length + ' copies, more than MAX_TRASH_PER_RUN (' +
         cfg.maxTrash + '). Nothing was trashed. Check the folder, then raise the limit if this is expected.');
@@ -122,7 +148,7 @@ function prune_(cfg, folder, dryRun) {
  * items: [{date: 'yyyy-MM-dd', ...}]; today: 'yyyy-MM-dd'. Returns the items to trash:
  * older than keepDays AND not the earliest copy of their month.
  */
-function selectForTrash(items, today, keepDays) {
+function selectForTrash_(items, today, keepDays) {
   var cutoff = new Date(today + 'T00:00:00Z');
   cutoff.setUTCDate(cutoff.getUTCDate() - keepDays);
   var cut = cutoff.toISOString().slice(0, 10);
