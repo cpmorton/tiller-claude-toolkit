@@ -9,8 +9,9 @@ set -u
 # Python libs for the Tiller analysis scripts. pip skips anything already satisfied.
 #   pandas/pyarrow: the analysis itself; openpyxl: .xlsx exports (Amazon order history, statements)
 #   rapidfuzz: fuzzy merchant matching for AutoCat rule candidates and Amazon/receipt reconciliation
+#   pytest: the toolkit's tests (tests/), same as CI
 python3 -m pip install --quiet --disable-pip-version-check --root-user-action=ignore \
-  'pandas>=2.2' 'pyarrow>=17' 'openpyxl>=3.1' 'rapidfuzz>=3.9' || true
+  'pandas>=2.2' 'pyarrow>=17' 'openpyxl>=3.1' 'rapidfuzz>=3.9' 'pytest>=8' || true
 
 # Shell-side CSV tooling: miller (mlr) is awk/sed/jq for CSV -- handy for quick slicing of exports.
 if ! command -v mlr >/dev/null || ! command -v jq >/dev/null; then

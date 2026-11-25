@@ -4,6 +4,14 @@ These rules apply to any agent session that reads or writes a user's Tiller Goog
 A private companion repo may add personal conventions on top. Its CLAUDE.md wins where they
 differ.
 
+## Session setup
+
+- In a session with both repos attached (Claude Duet threads, Claude projects), run
+  `bash tiller-claude-toolkit/scripts/session-setup.sh` once before other work. Those sessions
+  skip repo hooks. Single-repo sessions run it on their own from `.claude/settings.json`.
+  It turns on the pre-commit data guard and, in cloud sessions, installs what
+  `scripts/cloud-setup.sh` lists.
+
 ## Never
 
 - Commit financial data: transaction exports, statements, balances, account numbers.
