@@ -60,14 +60,14 @@ probably a category (or a subcategory) instead.
 
 ## Finding tagged rows
 
-With the Tiller connector (any MCP client), filter on the `note` field:
+Ask Claude, or have it run this through the Tiller connector (a filter on the `note` field):
 
 ```json
 { "filter": { "note": { "$regex": "TRIP:Lisbon May 2026" } },
   "aggregate": { "groupBy": "category", "functions": ["sum", "count"] } }
 ```
 
-Without an AI: use a filter view on the Note column ("Text contains"), or a
+In the sheet itself: use a filter view on the Note column ("Text contains"), or a
 `=SUMIFS(Transactions!E:E, Transactions!V:V, "*TRIP:Lisbon May 2026*")` formula
 (adjust the column letters to your sheet). Don't add a "filter by condition" on Date in the
 Transactions tab itself: Tiller's Direct Fills troubleshooting article lists it as a fill

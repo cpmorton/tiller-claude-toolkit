@@ -1,8 +1,8 @@
 # Getting started
 
 Two paths: a **new** Tiller sheet, or an **existing** one you already use. Both end in the
-same place: the toolkit's categories and rules in your sheet, a backup habit, and a choice
-of how much an AI does (see [ways to run](ways-to-run.md)). Nothing here needs an AI.
+same place: the toolkit's categories and rules in your sheet, a backup habit, and Claude
+connected to do the bookkeeping (see [ways to run](ways-to-run.md)).
 
 Allow about an hour for the new path and an afternoon for the existing one, most of it
 reviewing categories.
@@ -10,13 +10,34 @@ reviewing categories.
 ## Prerequisites (both paths)
 
 - A Tiller subscription and a Google Sheet on **[Direct Fills](https://help.tiller.com/en/articles/13177613-direct-fills-for-google-sheets)**.
-  Data arrives without pressing a button, and AutoCat's AI Suggest and the Tiller AI
+  Data arrives without pressing a button, and AutoCat's AI Suggest and Tiller's Claude
   connector (MCP) work only on Direct Fills sheets. Older Sidebar sheets can be upgraded
   from the Tiller Console.
 - Two Direct Fills gotchas from that article: vertically merged cells break fills, and so
   do duplicate Transaction IDs.
-- A GitHub account if you want the public/private repo pattern
-  ([public-private-pattern](public-private-pattern.md)). Optional without an AI.
+- A Claude account (Tiller's connector is documented for Claude) and a GitHub account for
+  the public/private repo pattern ([public-private-pattern](public-private-pattern.md)).
+
+## Connect Claude
+
+Do this first, so Claude can do the work in either path. The Tiller connector lets Claude
+read and edit Transactions and Categories: add it from Claude's connector directory
+(claude.ai or the desktop app) and sign in with your Tiller login. Tiller calls it
+experimental. Per Tiller's
+[MCP article](https://help.tiller.com/en/articles/14999828-connecting-ai-tools-to-tiller-via-mcp)
+(checked 2026-11):
+
+- reads all Transactions, Balance History, Holdings and Categories columns; at most 500
+  transactions per call, paged;
+- edits any Transactions column and adds, renames or deletes categories; budget amounts
+  are read-only;
+- `delete_transactions` exists in Claude Code only;
+- `refresh_accounts` shares the Console's daily refresh limit;
+- it reads your linked sheets only, not Tiller's database.
+
+The AutoCat tab, backups and any other tab need the Google Sheets and Drive connectors.
+Give Claude [CLAUDE.md](../CLAUDE.md) as its rules, plus your private repo's CLAUDE.md.
+Then choose where it runs, Claude Code or Claude Duet: [ways to run](ways-to-run.md).
 
 ## Path A: new Tiller sheet
 
@@ -25,9 +46,9 @@ reviewing categories.
    columns added later don't back-fill existing rows. (A **Tags** column is optional and not
    used by the scripts yet; see [tags and notes](tags-and-notes.md).)
 2. **Categories.** Load [`defaults/categories.csv`](../defaults/categories.csv) into the
-   Categories tab before AutoCat ever runs. With an AI connected, add them with the
-   connector's `add_category`; by hand, type or *Paste special > Values only* into blank
-   rows under the last category. Never insert rows. Delete the template's categories you
+   Categories tab before AutoCat ever runs. Have Claude add them with the connector's
+   `add_category`, or type or *Paste special > Values only* into blank rows under the last
+   category. Never insert rows. Delete the template's categories you
    don't want before any transaction uses them.
 3. **AutoCat.** Paste [`defaults/autocat.csv`](../defaults/autocat.csv) into the AutoCat tab
    with *Paste special > Values only*. Read the [AutoCat playbook](autocat-playbook.md) first:
@@ -37,8 +58,7 @@ reviewing categories.
    Google account). From now on every bulk change starts with a copy.
 5. **Connect accounts** in the Tiller Console and let the first fill land.
 6. **First review.** Look at what's blank or `Categorize Later`, and write rules for any
-   merchant with 3 or more rows. With an AI, ask it to do this; without one, sort
-   Transactions by Category with a filter view.
+   merchant with 3 or more rows. Ask Claude to do this.
 
 ## Path B: existing Tiller sheet
 
@@ -76,26 +96,6 @@ the conventions without a big-bang rewrite.
    [categories and transfers](categories-and-transfers.md).
 9. **Clean up a quarter at a time** with the [quarterly sweep](quarterly-sweep.md), newest
    first, instead of re-categorizing years at once.
-
-## Connect an AI (optional)
-
-The Tiller connector lets an AI read and edit Transactions and Categories. Tiller documents
-it for Claude (claude.ai and the desktop app): add it from Claude's connector directory,
-sign in with your Tiller login. Tiller calls it experimental. Per Tiller's
-[MCP article](https://help.tiller.com/en/articles/14999828-connecting-ai-tools-to-tiller-via-mcp)
-(checked 2026-11):
-
-- reads all Transactions, Balance History, Holdings and Categories columns; at most 500
-  transactions per call, paged;
-- edits any Transactions column and adds, renames or deletes categories; budget amounts
-  are read-only;
-- `delete_transactions` exists in Claude Code only;
-- `refresh_accounts` shares the Console's daily refresh limit;
-- it reads your linked sheets only, not Tiller's database.
-
-The AutoCat tab, backups and any other tab need the Google Sheets and Drive connectors.
-Give the agent [CLAUDE.md](../CLAUDE.md) as its rules, plus your private repo's CLAUDE.md.
-Then pick how it runs: [ways to run](ways-to-run.md).
 
 ## First spending review
 
