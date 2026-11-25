@@ -23,7 +23,8 @@ differ.
 ## Always
 
 - **Back up before any write**: make a Drive copy named
-  `BACKUP <yyyy-mm-dd> pre-<step> - <sheet title>`.
+  `BACKUP <yyyy-mm-dd> pre-<step> - <sheet title>` in the `Tiller Backups` folder
+  (see [docs/backups.md](docs/backups.md)). Never delete a backup without the owner's yes.
 - Default to read-only. Propose a change set, get a yes, back up, then write.
 - Clear a cell only with explicit confirmation.
 - Treat nothing as done until it's verified in the sheet. Plans discussed in chat aren't facts.

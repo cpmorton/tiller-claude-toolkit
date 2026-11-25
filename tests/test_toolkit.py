@@ -110,3 +110,108 @@ def test_cli_lint_exit_codes(tmp_path):
     p = subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'scripts', 'lint_autocat.py'), str(bad)],
                        capture_output=True, text=True)
     assert p.returncode == 1 and 'has no criteria' in p.stdout
+
+
+import pair_legs  # noqa: E402
+
+
+def _tx(id_, d, amt, acct, cat='', note=''):
+    return {'transactionId': id_, 'date': d, 'description': id_, 'amount': amt,
+            'account': acct, 'category': cat, 'note': note}
+
+
+def _run_pairs(tmp_path, txs, cfg_text='', extra=()):
+    src, out, upd, cfg = (tmp_path / n for n in ('tx.json', 'pairs.csv', 'upd.json', 'c.toml'))
+    src.write_text(__import__('json').dumps({'transactions': txs}))
+    cfg.write_text(cfg_text)
+    p = subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'scripts', 'pair_legs.py'), str(src),
+                        '--config', str(cfg), '--out', str(out), '--updates', str(upd), *extra],
+                       capture_output=True, text=True)
+    assert p.returncode == 0, p.stderr
+    with open(out, newline='') as f:
+        rows = {r['transaction_id']: r for r in csv.DictReader(f)}
+    return rows, __import__('json').loads(upd.read_text())
+
+
+CFG = '[accounts]\ncash = ["Chk", "Sav"]\ncards = ["Visa"]\n'
+
+
+def test_pair_uses_categorized_leg_then_config(tmp_path):
+    txs = [_tx('a1', '2026-01-05', -500.0, 'Chk'),            # card payment, both blank
+           _tx('a2', '2026-01-07', 500.0, 'Visa'),
+           _tx('b1', '2026-02-01', -75.25, 'Chk'),           # other leg already tagged
+           _tx('b2', '2026-02-02', 75.25, 'Sav', 'Transfer', 'kept'),
+           _tx('c1', '2026-03-01', -40.0, 'Chk'),            # 5 days apart: no pair
+           _tx('c2', '2026-03-06', 40.0, 'Sav')]
+    rows, upd = _run_pairs(tmp_path, txs, CFG)
+    assert rows['a1']['proposed_category'] == rows['a2']['proposed_category'] == 'Debt / Revolving Payment'
+    assert rows['b1']['proposed_category'] == 'Transfer' and 'b2' not in rows  # never touch tagged rows
+    assert 'c1' not in rows and 'c2' not in rows
+    assert {u['transactionId'] for u in upd} == {'a1', 'a2', 'b1'}
+    assert next(u for u in upd if u['transactionId'] == 'b1')['values']['Note'] == 'PAIR:b2'
+
+
+def test_pair_ties_are_ambiguous_and_notes_append(tmp_path):
+    txs = [_tx('d1', '2026-04-01', -20.0, 'Chk', note='FLAG:identify'),
+           _tx('d2', '2026-04-02', 20.0, 'Sav'),
+           _tx('d3', '2026-04-02', 20.0, 'Visa')]
+    rows, upd = _run_pairs(tmp_path, txs, CFG)
+    assert rows['d1']['status'].startswith('ambiguous') and upd == []
+    assert pair_legs.append_token('FLAG:identify', 'PAIR:x') == 'FLAG:identify PAIR:x'
+    assert pair_legs.append_token('PAIR:x', 'PAIR:x') == 'PAIR:x'
+
+
+def test_pair_unknown_accounts_need_a_person(tmp_path):
+    rows, upd = _run_pairs(tmp_path, [_tx('e1', '2026-05-01', -9.0, 'Chk'),
+                                      _tx('e2', '2026-05-01', 9.0, 'Some Wallet')], CFG)
+    assert rows['e1']['status'] == 'needs_category' and upd == []
+
+
+def test_pair_ignores_purchases_when_categories_given(tmp_path):
+    cats = tmp_path / 'cats.csv'
+    cats.write_text('Category,Group,Type,Hide From Reports\nTransfer,Transfer,Transfer,\n'
+                    'Groceries,Food,Expense,\n')
+    txs = [_tx('a1', '2025-01-02', -40, 'Chk'), _tx('b1', '2025-01-03', 40, 'Sav', 'Groceries'),
+           _tx('a2', '2025-02-02', -55, 'Chk'), _tx('b2', '2025-02-03', 55, 'Sav', 'Transfer')]
+    rows, _ = _run_pairs(tmp_path, txs, CFG, ['--categories', str(cats)])
+    assert list(rows) == ['a2'] and rows['a2']['proposed_category'] == 'Transfer'
+
+
+def test_pair_conflict_between_leg_and_accounts_goes_to_a_person(tmp_path):
+    txs = [_tx('a1', '2025-01-02', -6, 'Chk'), _tx('b1', '2025-01-03', 6, 'Sav', 'Debt / Revolving Payment')]
+    rows, upd = _run_pairs(tmp_path, txs, CFG)
+    assert rows['a1']['status'] == 'needs_category' and upd == []
+
+
+def _retention(items, today, keep_days=30):
+    """Run the Apps Script's pure retention rule under node; returns the dates it would trash."""
+    import json, shutil
+    if not shutil.which('node'):
+        import pytest
+        pytest.skip('node not installed')
+    src = os.path.join(ROOT, 'apps-script', 'nightly-backup.gs')
+    js = ("const fs=require('fs');const code=fs.readFileSync(process.argv[1],'utf8');"
+          "const f=new Function(code+';return selectForTrash;')();"
+          "const a=JSON.parse(process.argv[2]);"
+          "console.log(JSON.stringify(f(a.items,a.today,a.keep).map(i=>i.date)));")
+    arg = json.dumps({'items': [{'date': d} for d in items], 'today': today, 'keep': keep_days})
+    p = subprocess.run(['node', '-e', js, src, arg], capture_output=True, text=True)
+    assert p.returncode == 0, p.stderr
+    return json.loads(p.stdout)
+
+
+def test_backup_retention_keeps_window_and_first_of_month():
+    import datetime as dt
+    start = dt.date(2026, 8, 20)
+    days = [(start + dt.timedelta(n)).isoformat() for n in range(118)]  # through 2026-12-15
+    gone = set(_retention(days, '2026-12-15'))
+    kept = set(days) - gone
+    assert {'2026-08-20', '2026-09-01', '2026-10-01', '2026-11-01', '2026-12-01'} <= kept
+    assert all(d >= '2026-11-15' for d in kept if d[8:] != '01' and d != '2026-08-20')
+    assert '2026-11-14' in gone and '2026-11-15' in kept and '2026-12-15' in kept
+
+
+def test_backup_retention_with_gaps_keeps_earliest_copy_of_month():
+    # no copy on the 1st (trigger missed a day): the earliest one that month survives
+    assert _retention(['2026-09-03', '2026-09-04', '2026-09-20'], '2026-12-15') == ['2026-09-04', '2026-09-20']
+    assert _retention(['2026-12-01', '2026-12-14'], '2026-12-15') == []
