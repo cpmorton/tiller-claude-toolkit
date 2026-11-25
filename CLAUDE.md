@@ -18,7 +18,7 @@ differ.
   then points at the wrong column. If it breaks, see
   [docs/categories-and-transfers.md](docs/categories-and-transfers.md#if-the-category-dropdown-breaks).
 - Run AutoCat "Run Rules on All" without saying so first. It overwrites existing
-  categories wherever a rule matches.
+  categories wherever a rule matches, and treat Note/Tags override columns as overwritten too.
 
 ## Always
 
@@ -41,8 +41,11 @@ differ.
 - `Categorize Later` covers Amazon, superstores (Target, Costco, Walmart...), and P2P with
   no memo. They're reconciled later from order exports and receipts. Match by Transaction ID
   in the Note column.
-- Note tokens: `FLAG:identify`, `AMZ:pending`, `REVIEW:<why>`, `TODO:<what>`, and
-  `SWEEP:<yyyy>-Q<n>` on finalized rows. Append tokens; never overwrite a Note.
+- Note tokens are `KEY:value`, separated by `; ` (see [docs/tags-and-notes.md](docs/tags-and-notes.md)):
+  labels such as `TRIP:<name>`, `AMZ:<item>`, `CARD:<debt>`, and workflow markers such as
+  `FLAG:identify`, `AMZ:pending`, `REVIEW:<why>`, `TODO:<what>`, `PAIR:<id>` and
+  `SWEEP:<yyyy>-Q<n>`. Re-read a row's Note right before writing, append, never overwrite.
+  Only one task writes a given column at a time.
 
 ## Tools
 
