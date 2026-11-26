@@ -43,5 +43,6 @@ python3 -I ../tiller-claude-toolkit/scripts/merge_autocat.py \
 
 Attach both repos to the Claude project (or environment). They clone side by side, so the
 relative paths above work unchanged. A session with several repositories doesn't run repo
-SessionStart hooks, so dependencies come from the environment's setup script. See
+SessionStart hooks, so run `bash tiller-claude-toolkit/scripts/session-setup.sh` once
+(or use an environment whose setup script is `cloud-setup.sh`). See
 [cloud-environment](cloud-environment.md).
