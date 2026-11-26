@@ -23,10 +23,11 @@ differ.
   A normal paste overwrites the validation on those cells.
 - Move, rename, reformat or delete the Category column header on either tab.
 - Insert, delete or move columns on **Transactions** or **Categories**. The dropdown rule
-  then points at the wrong column. If it breaks, see
+  then points at the wrong column. One exception: adding a column titled `Tags` as the
+  **last** Transactions column, after a backup (Tiller supports it). If it breaks, see
   [docs/categories-and-transfers.md](docs/categories-and-transfers.md#if-the-category-dropdown-breaks).
 - Run AutoCat "Run Rules on All" without saying so first. It overwrites existing
-  categories wherever a rule matches.
+  categories wherever a rule matches, and treat Note/Tags override columns as overwritten too.
 
 ## Always
 
@@ -49,8 +50,12 @@ differ.
 - `Categorize Later` covers Amazon, superstores (Target, Costco, Walmart...), and P2P with
   no memo. They're reconciled later from order exports and receipts. Match by Transaction ID
   in the Note column.
-- Note tokens: `FLAG:identify`, `AMZ:pending`, `REVIEW:<why>`, `TODO:<what>`, and
-  `SWEEP:<yyyy>-Q<n>` on finalized rows. Append tokens; never overwrite a Note.
+- Tags and Note tokens are both `KEY:value` (see [docs/tags-and-notes.md](docs/tags-and-notes.md)).
+  Labels such as `TRIP:<name>`, `PLAN:<purchase>` and `CARD:<debt>` go in the **Tags** column,
+  comma-separated with no space, when the sheet has one; otherwise in Note. Workflow markers
+  (`FLAG:identify`, `AMZ:pending`, `REVIEW:<why>`, `TODO:<what>`, `PAIR:<id>`,
+  `SWEEP:<yyyy>-Q<n>`) and `AMZ:<item>` stay in Note, separated by `; `. Re-read a row right
+  before writing, append, never overwrite. Only one task writes a given column at a time.
 
 ## Tools
 
