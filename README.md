@@ -26,7 +26,7 @@ Someone who just connected their bank accounts to a Tiller sheet and wants:
 | [`apps-script/nightly-backup.gs`](apps-script/nightly-backup.gs) | Optional nightly copy of the sheet with retention, installed in your own Google account. See [backups](docs/backups.md) |
 | [`docs/`](docs/) | How-tos, from first setup to quarterly sweeps. Start with [getting-started](docs/getting-started.md); [backups](docs/backups.md) before your first write |
 | [`docs/ways-to-run.md`](docs/ways-to-run.md) | Running it in Claude Code or Claude Duet, and which jobs need Claude at all |
-| [`docs/tags-and-notes.md`](docs/tags-and-notes.md) | The `KEY:value` Note token convention (trips, orders, flags) and the planned Tags column |
+| [`docs/tags-and-notes.md`](docs/tags-and-notes.md) | Tags column for labels (trips, plans) and `KEY:value` Note tokens for workflow markers |
 | [`routines/`](routines/) | Read-only prompts for scheduled runs: daily review, weekly sweep, nightly rules snapshot |
 | [`defaults/categories.csv`](defaults/categories.csv) | Opinionated category list (Category, Group, Type) |
 | [`defaults/autocat.csv`](defaults/autocat.csv) | Generic AutoCat rules in four tiers: structural, merchants, superstores, Plaid-hint fallbacks |

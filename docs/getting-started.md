@@ -43,8 +43,8 @@ Then choose where it runs, Claude Code or Claude Duet: [ways to run](ways-to-run
 
 1. **Sheet.** Start from Tiller's [Foundation template](https://help.tiller.com/en/articles/3250724-what-is-the-tiller-foundation-template).
    Before the first fill, add a column titled **Note** at the right edge of Transactions:
-   columns added later don't back-fill existing rows. (A **Tags** column is optional and not
-   used by the scripts yet; see [tags and notes](tags-and-notes.md).)
+   columns added later don't back-fill existing rows. (Add a **Tags** column as the last column for
+   labels like `TRIP:`; the scripts don't read it yet. See [tags and notes](tags-and-notes.md).)
 2. **Categories.** Load [`defaults/categories.csv`](../defaults/categories.csv) into the
    Categories tab before AutoCat ever runs. Have Claude add them with the connector's
    `add_category`, or type or *Paste special > Values only* into blank rows under the last
