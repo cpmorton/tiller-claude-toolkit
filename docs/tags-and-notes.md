@@ -75,8 +75,16 @@ columns as the `tags` and `note` fields; use whichever holds the label:
 ```
 
 In the sheet itself: the Tags Report (one total per tag, with a category breakdown), a filter
-view ("Text contains"), or a `=SUMIFS(Transactions!E:E, Transactions!W:W, "*TRIP:Lisbon May 2026*")`
-formula (adjust the column letters to your sheet). Don't add a "filter by condition" on Date in the
+view ("Text contains"), or a formula that finds the columns by header, since column letters differ
+between Tiller sheets (some start with a blank column A, and add-ons insert columns):
+
+```
+=SUMIFS(INDEX(Transactions!A:ZZ, 0, MATCH("Amount", Transactions!1:1, 0)),
+        INDEX(Transactions!A:ZZ, 0, MATCH("Tags", Transactions!1:1, 0)), "*TRIP:Lisbon May 2026*")
+```
+
+Scripts and Claude should do the same: look a column up by its header text, never by letter.
+`describe_sheet` lists headers in order but skips a blank first column, so don't count letters from it. Don't add a "filter by condition" on Date in the
 Transactions tab itself: Tiller's Direct Fills troubleshooting article lists it as a fill
 blocker. Use a filter view or another tab.
 
